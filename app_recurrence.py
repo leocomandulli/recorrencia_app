@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime, timedelta
 import pandas as pd
+import calendar
 
 # --- Variáveis globais ----
 days_of_week = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -158,6 +159,53 @@ def event_generate_forms():
             st.session_state['list_generated'] = df_single_date
 
             st.rerun()
+
+#Função de exibição do calendário
+def exibir_calendario_com_eventos(df_eventos, ano, mes):
+    cal = calendar.Calendar()
+
+    # Converter as datas dos eventos para o formato "YYYY-MM-DD"
+    eventos = set(df_eventos["Date"].dt.strftime("%Y-%m-%d"))
+
+    tabela_calendario = """
+    <style>
+    table {width: 100%; border-collapse: collapse; text-align: center;}
+    th {background-color: #4CAF50; color: white; padding: 10px;}
+    td {padding: 10px;}
+    td.event {background-color: lightblue; border: 1px solid #4CAF50; border-radius: 50%; text-align: center;}
+    td.empty {background-color: #f9f9f9;}
+    </style>
+    <table>
+        <thead>
+            <tr>
+                <th>Seg</th>
+                <th>Ter</th>
+                <th>Qua</th>
+                <th>Qui</th>
+                <th>Sex</th>
+                <th>Sáb</th>
+                <th>Dom</th>
+            </tr>
+        </thead>
+        <tbody>
+    """
+    for semana in cal.monthdayscalendar(ano, mes):
+        tabela_calendario += "<tr>"
+        for dia in semana:
+            if dia == 0:  # Dias fora do mês
+                tabela_calendario += "<td class='empty'></td>"
+            else:
+                data_atual = datetime(ano, mes, dia).strftime("%Y-%m-%d")
+                if data_atual in eventos:
+                    tabela_calendario += f"<td class='event'>{dia}</td>"
+                else:
+                    tabela_calendario += f"<td>{dia}</td>"
+        tabela_calendario += "</tr>"
+
+    tabela_calendario += "</tbody></table>"
+    return tabela_calendario
+
+
 # ------ PÁGINA -----
 def app():
     st.header("Welcome to the recurrences app")
@@ -169,7 +217,53 @@ def app():
     if st.button("Show events list"):
         if 'list_generated' in st.session_state:
             st.write(st.session_state['list_generated'])
+    
+    # Verificar se a chave 'list_generated' existe no session_state
+    if 'list_generated' in st.session_state:
+        # Acessar e processar os dados
+        df_eventos = st.session_state['list_generated']
+        
+        # Garantir que a coluna 'Date' seja convertida para datetime no formato correto
+        try:
+            df_eventos["Date"] = pd.to_datetime(df_eventos["Date"], format="%d/%m/%Y", dayfirst=True)
+        except ValueError as e:
+            st.error(f"Erro ao converter as datas: {e}")
+        
+    else:
+        # Se a chave não existe, exibir uma mensagem de erro
+        st.error("A chave 'list_generated' não foi encontrada no session state.")
+    
+    st.title("📅 Calendário com Eventos")
 
+    # Seleção de ano e mês
+    if "ano" not in st.session_state:
+        st.session_state.ano = datetime.today().year
+    if "mes" not in st.session_state:
+        st.session_state.mes = datetime.today().month
+
+    # Navegação entre meses
+    col1, col2, col3 = st.columns([1, 2, 1])
+
+    with col1:
+        if st.button("◀️ Mês Anterior"):
+            if st.session_state.mes == 1:
+                st.session_state.mes = 12
+                st.session_state.ano -= 1
+            else:
+                st.session_state.mes -= 1
+
+    with col3:
+        if st.button("Próximo Mês ▶️"):
+            if st.session_state.mes == 12:
+                st.session_state.mes = 1
+                st.session_state.ano += 1
+            else:
+                st.session_state.mes += 1
+
+    # Exibição do calendário com eventos
+    st.markdown(f"### {calendar.month_name[st.session_state.mes]} {st.session_state.ano}")
+    calendario_html = exibir_calendario_com_eventos(df_eventos, st.session_state.ano, st.session_state.mes)
+    st.markdown(calendario_html, unsafe_allow_html=True)
 # Executar o app
 if __name__ == "__main__":
     app()
