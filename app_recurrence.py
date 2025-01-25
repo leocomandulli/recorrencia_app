@@ -208,13 +208,13 @@ def exibir_calendario_com_eventos(df_eventos, ano, mes):
 
 # ------ PÁGINA -----
 def app():
-    st.header("Welcome to the recurrences app")
+    st.sidebar.header("Welcome to the recurrences app")
     
     # Botão para chamar o formulário de eventos
-    if st.button("Create new event"):
+    if st.sidebar.button("Create new event"):
         event_generate_forms()
     # Exibindo a tabela gerada fora do dialog
-    if st.button("Show events list"):
+    if st.sidebar.button("Show events list"):
         if 'list_generated' in st.session_state:
             st.write(st.session_state['list_generated'])
     
@@ -232,38 +232,39 @@ def app():
     else:
         # Se a chave não existe, exibir uma mensagem de erro
         st.error("A chave 'list_generated' não foi encontrada no session state.")
-    
-    st.title("📅 Calendário com Eventos")
 
-    # Seleção de ano e mês
-    if "ano" not in st.session_state:
-        st.session_state.ano = datetime.today().year
-    if "mes" not in st.session_state:
-        st.session_state.mes = datetime.today().month
+    if 'list_generated' in st.session_state: 
+        st.title("📅 Events calendar")
 
-    # Navegação entre meses
-    col1, col2, col3 = st.columns([1, 2, 1])
+        # Seleção de ano e mês
+        if "ano" not in st.session_state:
+            st.session_state.ano = datetime.today().year
+        if "mes" not in st.session_state:
+            st.session_state.mes = datetime.today().month
 
-    with col1:
-        if st.button("◀️ Mês Anterior"):
-            if st.session_state.mes == 1:
-                st.session_state.mes = 12
-                st.session_state.ano -= 1
-            else:
-                st.session_state.mes -= 1
+        # Navegação entre meses
+        col1, col2, col3 = st.columns([1, 2, 1])
 
-    with col3:
-        if st.button("Próximo Mês ▶️"):
-            if st.session_state.mes == 12:
-                st.session_state.mes = 1
-                st.session_state.ano += 1
-            else:
-                st.session_state.mes += 1
+        with col1:
+            if st.button("◀️ Mês Anterior"):
+                if st.session_state.mes == 1:
+                    st.session_state.mes = 12
+                    st.session_state.ano -= 1
+                else:
+                    st.session_state.mes -= 1
 
-    # Exibição do calendário com eventos
-    st.markdown(f"### {calendar.month_name[st.session_state.mes]} {st.session_state.ano}")
-    calendario_html = exibir_calendario_com_eventos(df_eventos, st.session_state.ano, st.session_state.mes)
-    st.markdown(calendario_html, unsafe_allow_html=True)
+        with col3:
+            if st.button("Próximo Mês ▶️"):
+                if st.session_state.mes == 12:
+                    st.session_state.mes = 1
+                    st.session_state.ano += 1
+                else:
+                    st.session_state.mes += 1
+
+        # Exibição do calendário com eventos
+        st.markdown(f"### {calendar.month_name[st.session_state.mes]} {st.session_state.ano}")
+        calendario_html = exibir_calendario_com_eventos(df_eventos, st.session_state.ano, st.session_state.mes)
+        st.markdown(calendario_html, unsafe_allow_html=True)
 # Executar o app
 if __name__ == "__main__":
     app()
