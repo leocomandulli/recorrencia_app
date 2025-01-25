@@ -231,7 +231,7 @@ def app():
         
     else:
         # Se a chave não existe, exibir uma mensagem de erro
-        st.error("A chave 'list_generated' não foi encontrada no session state.")
+        st.warning("Select 'create new event' to start")
 
     if 'list_generated' in st.session_state: 
         st.title("📅 Events calendar")
