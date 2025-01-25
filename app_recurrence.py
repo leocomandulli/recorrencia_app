@@ -178,13 +178,13 @@ def exibir_calendario_com_eventos(df_eventos, ano, mes):
     <table>
         <thead>
             <tr>
-                <th>Seg</th>
-                <th>Ter</th>
-                <th>Qua</th>
-                <th>Qui</th>
-                <th>Sex</th>
-                <th>Sáb</th>
-                <th>Dom</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+                <th>Sun</th>
             </tr>
         </thead>
         <tbody>
@@ -246,7 +246,7 @@ def app():
         col1, col2, col3 = st.columns([1, 2, 1])
 
         with col1:
-            if st.button("◀️ Mês Anterior"):
+            if st.button("◀️ Last month"):
                 if st.session_state.mes == 1:
                     st.session_state.mes = 12
                     st.session_state.ano -= 1
@@ -254,7 +254,7 @@ def app():
                     st.session_state.mes -= 1
 
         with col3:
-            if st.button("Próximo Mês ▶️"):
+            if st.button("Next month ▶️"):
                 if st.session_state.mes == 12:
                     st.session_state.mes = 1
                     st.session_state.ano += 1
